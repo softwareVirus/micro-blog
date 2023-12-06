@@ -1,5 +1,12 @@
 from flask import Flask
 from flask_restful import reqparse, abort, Api, Resource
+import os
+from mongoengine import connect
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
+
+connect(host=os.getenv("MONGODB_CONNECTION_STRING"))
 
 app = Flask(__name__)
 api = Api(app)
@@ -50,6 +57,10 @@ class TodoList(Resource):
         todo_id = 'todo%i' % todo_id
         TODOS[todo_id] = {'task': args['task']}
         return TODOS[todo_id], 201
+    
+@app.route('/')
+def index():
+    return "Index Route"
 
 ##
 ## Actually setup the Api resource routing here
