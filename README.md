@@ -1,6 +1,6 @@
 # Project Name
 
-Brief description of your Flask project.
+Brief description of Flask project.
 
 ## Table of Contents
 
