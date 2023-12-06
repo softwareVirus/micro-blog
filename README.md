@@ -1,6 +1,4 @@
-# Project Name
-
-Brief description of Flask project.
+# Micro-blog
 
 ## Table of Contents
 
