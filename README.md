@@ -25,7 +25,7 @@ Brief description of your Flask project.
 
     ```bash
     python -m venv venv
-    .venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+    .venv/bin/activate  # On Windows
     ```
 
 3. Install dependencies:
@@ -47,6 +47,6 @@ Brief description of your Flask project.
 2. Run the Flask application:
 
     ```bash
-    flask run
+    flask --app ./app/app.py run
     ```
 
