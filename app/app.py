@@ -1,73 +1,43 @@
 from flask import Flask
-from flask_restful import reqparse, abort, Api, Resource
+from flask_restful import Api
 import os
 from mongoengine import connect
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
+from models.user import User
+from resources.auth import LoginResource, SignupResource
+from resources.protected import Profile
+from flask_cors import CORS
 
 load_dotenv()  # take environment variables from .env.
 
+# Connect to MongoDB using the provided connection string
 connect(host=os.getenv("MONGODB_CONNECTION_STRING"))
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
-TODOS = {
-    'todo1': {'task': 'build an API'},
-    'todo2': {'task': '?????'},
-    'todo3': {'task': 'profit!'},
-}
+# Set the JWT secret key, load from environment variable for security
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "default_secret_key")
+jwt = JWTManager(app)
 
+@jwt.user_identity_loader
+def user_identity_loader(user):
+    """Callback function to get the identity of the current user."""
+    return str(user.id)
 
-def abort_if_todo_doesnt_exist(todo_id):
-    if todo_id not in TODOS:
-        abort(404, message="Todo {} doesn't exist".format(todo_id))
+@jwt.user_lookup_loader
+def user_lookup_loader(_jwt_header, jwt_data):
+    """Callback function to look up a user by identity in JWT data."""
+    identity = jwt_data["sub"]
+    return User.objects.get(id=identity)
 
-parser = reqparse.RequestParser()
-parser.add_argument('task')
-
-
-# Todo
-# shows a single todo item and lets you delete a todo item
-class Todo(Resource):
-    def get(self, todo_id):
-        abort_if_todo_doesnt_exist(todo_id)
-        return TODOS[todo_id]
-
-    def delete(self, todo_id):
-        abort_if_todo_doesnt_exist(todo_id)
-        del TODOS[todo_id]
-        return '', 204
-
-    def put(self, todo_id):
-        args = parser.parse_args()
-        task = {'task': args['task']}
-        TODOS[todo_id] = task
-        return task, 201
-
-
-# TodoList
-# shows a list of all todos, and lets you POST to add new tasks
-class TodoList(Resource):
-    def get(self):
-        return TODOS
-
-    def post(self):
-        args = parser.parse_args()
-        todo_id = int(max(TODOS.keys()).lstrip('todo')) + 1
-        todo_id = 'todo%i' % todo_id
-        TODOS[todo_id] = {'task': args['task']}
-        return TODOS[todo_id], 201
-    
-@app.route('/')
-def index():
-    return "Index Route"
-
-##
-## Actually setup the Api resource routing here
-##
-
-api.add_resource(TodoList, '/todos')
-api.add_resource(Todo, '/todos/<todo_id>')
+# Define API routes and associate them with the respective resources
+api.add_resource(SignupResource, "/signup")
+api.add_resource(LoginResource, "/login")
+api.add_resource(Profile, "/profile")
 
 if __name__ == '__main__':
+    # Run the Flask application in debug mode during development
     app.run(debug=True)
