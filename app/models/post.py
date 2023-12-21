@@ -43,3 +43,5 @@ class Post(Document):
     author = ReferenceField('User', reverse_delete_rule=CASCADE)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    votes = ListField(ReferenceField('User'))
+    comments = ListField(ReferenceField('Comment'))
