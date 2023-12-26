@@ -24,7 +24,8 @@ class User(Document):
 
     Methods
     -------
-    None
+    to_dict()
+        Convert the User instance to a dictionary.
 
     Examples
     --------
@@ -47,3 +48,21 @@ class User(Document):
     salt = StringField(required=True)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+
+    def to_dict(self):
+        """
+        Convert the User instance to a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary representation of the User instance.
+        """
+        return {
+            "id": str(self.id),
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+        }
