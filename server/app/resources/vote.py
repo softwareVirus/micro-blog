@@ -81,7 +81,7 @@ class VoteResource(Resource):
                 post.update(pull__votes=current_user.id)
                 return {"message": "Vote removed successfully by the current user"}, 204
             else:
-                return {"message": "User has not voted for this post"}, 200
+                return {"message": "User has not voted for this post"}, 400
 
         except Exception as e:
             return Exception(f"An unexpected error occurred: {str(e)}")
