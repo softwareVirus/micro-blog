@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required
 
 
 class ChildCommentResource(Resource):
-    @jwt_required()
+    @jwt_required(fresh=True)
     def get(self, parent_comment_id):
         """
         Retrieve child comments based on the parent comment ID with pagination.

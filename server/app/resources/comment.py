@@ -31,8 +31,8 @@ class CommentResource(Resource):
         Delete a comment from a post.
     """
 
-    @jwt_required()
-    def post(self, post_id, parent_comment_id=None):
+    @jwt_required(fresh=True)
+    def post(self, post_id, comment_id=None):
         """
         Add a new comment to a post.
 
@@ -58,19 +58,21 @@ class CommentResource(Resource):
             If an unexpected error occurs during the operation.
         """
         try:
-            post = Post.objects.get(id=post_id)
+            post = Post.objects(id=post_id).get()
 
             if current_user is None:
                 return {"error": "User not found"}, 404
-
             args = parserComment.parse_args()
             new_comment = Comment(
                 content=args["content"],
                 author=current_user,
             )
-
-            if parent_comment_id:
-                parent_comment = Comment.objects.get(id=parent_comment_id)
+            if comment_id:
+                parent_comment = Comment.objects.get(id=comment_id)
+                parent_comment.total_number_of_child_comments = (
+                    parent_comment.total_number_of_child_comments + 1
+                )
+                parent_comment.save()
                 new_comment.parent_comment = parent_comment
             new_comment.save()
             post.comments.append(new_comment)
@@ -82,7 +84,7 @@ class CommentResource(Resource):
         except Exception as e:
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def get(self, post_id, comment_id=None):
         """
         Retrieve comments for a post.
@@ -113,8 +115,8 @@ class CommentResource(Resource):
 
             if comment_id:
                 # Retrieve a specific comment by ID
-                comment = Comment.objects.get(id=comment_id)
-                return comment.to_dict(), 200
+                comments = Comment.objects(parent_comment=comment_id)
+                return [comment.to_dict() for comment in comments], 200
             else:
                 # Retrieve parent comments (comments without a parent)
                 parent_comments = [
@@ -130,7 +132,7 @@ class CommentResource(Resource):
         except Exception as e:
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, post_id, comment_id):
         """
         Delete a comment from a post.

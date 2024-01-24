@@ -16,7 +16,7 @@ class VoteResource(Resource):
         Remove the vote of the current user from a post.
     """
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def post(self, post_id):
         """
         Record a vote for the current user on a post.
@@ -51,7 +51,7 @@ class VoteResource(Resource):
         except Exception as e:
             return Exception(f"An unexpected error occurred: {str(e)}")
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, post_id):
         """
         Remove the vote of the current user from a post.

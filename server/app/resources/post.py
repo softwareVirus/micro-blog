@@ -11,9 +11,6 @@ parserPost.add_argument(
 parserPost.add_argument(
     "content", type=str, location="json", required=True, help="Content cannot be blank"
 )
-parserPost.add_argument(
-    "tags", type=str, location="json", required=True, help="Tags cannot be blank"
-)
 
 
 class PostResource(Resource):
@@ -37,8 +34,8 @@ class PostResource(Resource):
         Delete a post.
     """
 
-    @jwt_required()
-    def get(self):
+    @jwt_required(fresh=True)
+    def get(self, post_id=None):
         """
         Retrieve all posts.
 
@@ -52,10 +49,14 @@ class PostResource(Resource):
         Exception
             If an unexpected error occurs while retrieving posts.
         """
-        posts = Post.objects()
-        return [post.to_dict() for post in posts]
+        if post_id:
+            post = Post.objects(id=post_id).get()
+            return post.to_dict()
+        else:
+            posts = Post.objects()
+            return [post.to_dict() for post in posts]
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def post(self):
         """
         Create a new post.
@@ -74,12 +75,10 @@ class PostResource(Resource):
         """
         try:
             args = parserPost.parse_args()
-            tag_list = ast.literal_eval(args["tags"])
 
             new_post = Post(
                 title=args["title"],
                 content=args["content"],
-                tags=tag_list,
                 author=current_user,
             )
             new_post.save()
@@ -87,9 +86,9 @@ class PostResource(Resource):
 
             return post_dict, 201
         except Exception as e:
-            return {"error": f"An unexpected error occurred: {str(e)}"}, 500
+            return {"error": f"An unexpected error occurred: {str(e)}"}, 400
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, post_id):
         """
         Delete a post.
