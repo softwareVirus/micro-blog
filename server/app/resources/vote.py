@@ -16,7 +16,7 @@ class VoteResource(Resource):
         Remove the vote of the current user from a post.
     """
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def post(self, post_id):
         """
         Record a vote for the current user on a post.
@@ -37,7 +37,7 @@ class VoteResource(Resource):
             If an unexpected error occurs during the vote recording process.
         """
         try:
-            post = Post.objects.get_or_404(id=post_id)
+            post = Post.objects.get(id=post_id)
 
             # Check if the user has already voted using MongoDB query
             already_voted = Post.objects(id=post_id, votes=current_user.id).count()
@@ -49,9 +49,10 @@ class VoteResource(Resource):
                 return {"message": "User has already voted for this post"}, 200
 
         except Exception as e:
+            print(e)
             return Exception(f"An unexpected error occurred: {str(e)}")
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, post_id):
         """
         Remove the vote of the current user from a post.
@@ -72,7 +73,7 @@ class VoteResource(Resource):
             If an unexpected error occurs during the vote removal process.
         """
         try:
-            post = Post.objects.get_or_404(id=post_id)
+            post = Post.objects.get(id=post_id)
 
             # Check if the user has voted before removing using MongoDB query
             has_voted = Post.objects(id=post_id, votes=current_user.id).count()
@@ -84,4 +85,5 @@ class VoteResource(Resource):
                 return {"message": "User has not voted for this post"}, 400
 
         except Exception as e:
+            print(e)
             return Exception(f"An unexpected error occurred: {str(e)}")
