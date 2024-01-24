@@ -1,4 +1,4 @@
-from mongoengine import Document, StringField, ReferenceField, DateTimeField, CASCADE
+from mongoengine import Document, StringField, ReferenceField, DateTimeField, CASCADE, IntField
 import datetime
 
 
@@ -36,6 +36,7 @@ class Comment(Document):
     content = StringField(max_length=1000, required=True)
     author = ReferenceField("User", reverse_delete_rule=CASCADE)
     parent_comment = ReferenceField("Comment")
+    total_number_of_child_comments = IntField(default=0)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
 
     def to_dict(self):
@@ -50,7 +51,8 @@ class Comment(Document):
         return {
             "id": str(self.id),
             "content": self.content,
-            "author": str(self.author.id),
+            "author": self.author.to_dict(),
             "parent_comment": str(self.parent_comment.id) if self.parent_comment else None,
+            "total_number_of_child_comment": self.total_number_of_child_comments,
             "created_at": self.created_at.isoformat(),
         }

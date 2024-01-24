@@ -1,5 +1,14 @@
-from mongoengine import Document, StringField, ListField, ReferenceField, DateTimeField, CASCADE
+from mongoengine import (
+    Document,
+    StringField,
+    ListField,
+    ReferenceField,
+    DateTimeField,
+    CASCADE,
+)
 import datetime
+
+
 class Post(Document):
     """
     MongoDB Document model representing a post.
@@ -43,12 +52,11 @@ class Post(Document):
 
     title = StringField(max_length=200, required=True)
     content = StringField(max_length=2000, required=True)
-    tags = ListField(StringField())
-    author = ReferenceField('User', reverse_delete_rule=CASCADE)
+    author = ReferenceField("User", reverse_delete_rule=CASCADE)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
-    votes = ListField(ReferenceField('User'))
-    comments = ListField(ReferenceField('Comment'))
+    votes = ListField(ReferenceField("User"))
+    comments = ListField(ReferenceField("Comment"))
 
     def to_dict(self):
         """
@@ -59,14 +67,15 @@ class Post(Document):
         dict
             A dictionary representation of the Post instance.
         """
+        # Select_related to populate the author field
+
         return {
             "id": str(self.id),
             "title": self.title,
             "content": self.content,
-            "tags": self.tags,
-            "author": str(self.author.id),
+            "author": self.author.to_dict(),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
             "votes": [str(user.id) for user in self.votes],
-            "comments": [str(comment.id) for comment in self.comments],
+            "comments": [comment.to_dict() for comment in self.comments],
         }
