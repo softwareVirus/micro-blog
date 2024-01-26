@@ -15,7 +15,7 @@
                 <p class="post-card-author" style="margin: 0">
                     {{ formattedDate }}
                 </p>
-                <div style="display: flex; align-items: center; gap: 0.5rem">
+                <div style="display: flex; align-items: center; gap: 0.5rem" v-if="!title && !content">
                     <SfHeartIcon />
                     {{ post.votes.length }}
                 </div>
