@@ -110,4 +110,4 @@ api.add_resource(RefreshResource, "/refresh_token")
 
 if __name__ == "__main__":
     # Run the Flask application in debug mode during development
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
