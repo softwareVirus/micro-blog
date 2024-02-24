@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "DEBUG": true,
+    "MONGODB_URI": "mongodb://localhost:27017/mydatabase",
+    "JWT_SECRET_KEY": "development_secret_key",
+    "JWT_ACCESS_TOKEN_EXPIRES": 3600
+  },
+  "test": {
+    "DEBUG": true,
+    "MONGODB_URI": "mongodb://localhost:27017/mytestdatabase",
+    "JWT_SECRET_KEY": "testing_secret_key",
+    "JWT_ACCESS_TOKEN_EXPIRES": 600
+  },
+  "prod": {
+    "DEBUG": false,
+    "MONGODB_URI": "<Your production MongoDB URI>",
+    "JWT_SECRET_KEY": "<Your production JWT secret key>",
+    "JWT_ACCESS_TOKEN_EXPIRES": 3600
+  }
+}
