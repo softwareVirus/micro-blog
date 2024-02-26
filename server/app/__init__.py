@@ -65,7 +65,6 @@ def user_identity_loader(user):
     str
         The user's identity (user ID).
     """
-    print(str(user))
     return str(user["id"])
 
 
