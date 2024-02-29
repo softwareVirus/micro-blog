@@ -101,18 +101,6 @@ api.add_resource(Profile, "/profile")
 api.add_resource(LogoutResource, "/logout")
 api.add_resource(RefreshResource, "/refresh_token")
 
-
-def create_app(mode="dev"):
-    #with open(f"./config.json", "r") as f:
-    #    config = json.load(f)
-    print(mode)
-    if mode == "dev":
-        connect(host="mongodb+srv://hello:12053085408a@cluster0.pn5ujkz.mongodb.net/?retryWrites=true&w=majority")#host=config["dev"]["MONGODB_URI"])
-    if mode == "test":
-        connect(
-            "mongoenginetest",
-            host="mongodb://localhost",
-            mongo_client_class=mongomock.MongoClient,
-            uuidRepresentation="standard",
-        )
-    return app
+if __name__ == "__main__":
+    # Run the Flask application in debug mode during development
+    app.run(host='0.0.0.0', debug=True)
