@@ -5,27 +5,27 @@ from datetime import timedelta
 from mongoengine import connect
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
-from models.user import User
-from resources.auth import (
+from app.models.user import User
+import mongomock
+from app.resources.auth import (
     LoginResource,
     SignupResource,
     LogoutResource,
     RefreshResource,
 )
-from resources.comment import CommentResource
-from resources.post import PostResource
-from resources.child_comment import ChildCommentResource
-from resources.protected import Profile
-from resources.vote import VoteResource
-from models.revoked_token import RevokedToken
+from app.resources.comment import CommentResource
+from app.resources.post import PostResource
+from app.resources.protected import Profile
+from app.resources.vote import VoteResource
+from app.models.revoked_token import RevokedToken
 from flask_cors import CORS
-from util.util import ACCESS_EXPIRES
-
+from app.util.util import ACCESS_EXPIRES
+import json
 
 load_dotenv()  # Load environment variables from .env.
 
+
 # Connect to MongoDB using the provided connection string
-connect(host=os.getenv("MONGODB_CONNECTION_STRING"))
 
 errors = {
     "ExpiredSignatureError": {
@@ -33,11 +33,9 @@ errors = {
         "status": 401,
     },
 }
-
 app = Flask(__name__)
 CORS(app)
 api = Api(app, errors=errors)
-
 # Set the JWT secret key, loaded from the environment variable for security
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "default_secret_key")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = ACCESS_EXPIRES
@@ -58,32 +56,28 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
 def user_identity_loader(user):
     """
     Callback function to get the identity of the current user.
-
     Parameters
     ----------
     user : User
         The current user.
-
     Returns
     -------
     str
         The user's identity (user ID).
     """
-    return str(user.id)
+    return str(user["id"])
 
 
 @jwt.user_lookup_loader
 def user_lookup_loader(_jwt_header, jwt_data):
     """
     Callback function to look up a user by identity in JWT data.
-
     Parameters
     ----------
     _jwt_header : dict
         The JWT header (not used in this function).
     jwt_data : dict
         The JWT data containing the user's identity.
-
     Returns
     -------
     User
@@ -101,13 +95,23 @@ api.add_resource(
 )
 api.add_resource(VoteResource, "/vote/<string:post_id>")
 api.add_resource(PostResource, "/posts", "/posts/<string:post_id>")
-api.add_resource(ChildCommentResource, "/comments/<string:parent_comment_id>/child")
 api.add_resource(SignupResource, "/signup")
 api.add_resource(LoginResource, "/login")
 api.add_resource(Profile, "/profile")
 api.add_resource(LogoutResource, "/logout")
 api.add_resource(RefreshResource, "/refresh_token")
 
-if __name__ == "__main__":
-    # Run the Flask application in debug mode during development
-    app.run(host='0.0.0.0', debug=True)
+def create_app(mode="dev"):
+    #with open(f"./config.json", "r") as f:
+    #    config = json.load(f)
+    print(mode)
+    if mode == "dev":
+        connect(host="mongodb+srv://hello:12053085408a@cluster0.pn5ujkz.mongodb.net/?retryWrites=true&w=majority")#host=config["dev"]["MONGODB_URI"])
+    if mode == "test":
+        connect(
+            "mongoenginetest",
+            host="mongodb://localhost",
+            mongo_client_class=mongomock.MongoClient,
+            uuidRepresentation="standard",
+        )
+    return app

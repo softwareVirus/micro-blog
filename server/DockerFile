@@ -4,7 +4,7 @@ FROM python:3.11.8 AS flask_builder
 # Set working directory
 WORKDIR /app
 
-ADD requirements.txt ./
+ADD requirements.txt run.py ./
 
 # Install virtualenv
 RUN pip install virtualenv
@@ -17,4 +17,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 5000
 # Command to run Flask app
-CMD ["python", "./app/app.py"]
+CMD ["python", "run.py"]

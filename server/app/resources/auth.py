@@ -5,11 +5,11 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
 )
-from app.models.user import User
+from models.user import User
 import bcrypt
 from flask_jwt_extended import get_jwt
 from flask import jsonify
-from app.models.revoked_token import RevokedToken
+from models.revoked_token import RevokedToken
 
 parserSignup = reqparse.RequestParser()
 parserSignup.add_argument(
@@ -69,12 +69,14 @@ class SignupResource(Resource):
 
             password = args["password"]
             password = str.encode(password)
-            hashed_password = bcrypt.hashpw(password, bcrypt.gensalt(16))
+            salt = bcrypt.gensalt(16)
+            hashed_password = bcrypt.hashpw(password, salt=salt)
 
             new_user = User(
                 first_name=args["first_name"],
                 last_name=args["last_name"],
                 email=args["email"],
+                salt=salt,
                 hashed_password=hashed_password,
             )
             new_user.save()
@@ -136,13 +138,13 @@ class LoginResource(Resource):
         """
         try:
             args = parserLogin.parse_args()
-            user = User.objects(email=args["email"]).first()
 
-            if not user:
-                return {"error": "Wrong email or password"}, 402
+            if not User.objects(email=args["email"]):
+                return {"error": "Wrong email or password"}, 401
 
             password = args["password"]
             password = str.encode(password)
+            user = User.objects.get(email=args["email"])
 
             if not bcrypt.checkpw(password, str.encode(user.hashed_password)):
                 return {"error": "Wrong email or password"}, 401
@@ -161,38 +163,51 @@ class LoginResource(Resource):
             }
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
+
+
+parserLogin = reqparse.RequestParser()
+parserLogin.add_argument("email", type=str, required=True, help="Email cannot be blank")
+parserLogin.add_argument(
+    "password", type=str, required=True, help="Password cannot be blank"
+)
 
 
 class LogoutResource(Resource):
     """
-    Resource for user logout.
+    Resource for user login.
+
+    Parameters
+    ----------
+    email : str
+        Email of the user, must be provided.
+    password : str
+        Password of the user, must be provided.
 
     Returns
     -------
     str
-        Message indicating successful token revocation.
+        Access token upon successful login.
 
     Raises
     ------
     dict
-        Error message and status code if an unexpected error occurs during token revocation.
+        Error message and status code if provided email does not exist, if the password is incorrect, or if an unexpected error occurs during login.
     """
 
     @jwt_required()
     def delete(self):
         """
-        Handles HTTP DELETE request for user logout.
+        Handles HTTP POST request for user login.
 
         Returns
         -------
         str
-            Message indicating successful token revocation.
+            Access token upon successful login.
         """
         try:
             jti = get_jwt()["jti"]
-            RevokedToken(jti=jti).save()
+            RevokedToken.objects(jti=jti).delete()
             return jsonify(msg="Access token revoked")
 
         except Exception as e:
@@ -201,34 +216,28 @@ class LogoutResource(Resource):
 
 class RefreshResource(Resource):
     """
-    Resource for refreshing access token.
+    Resource for user login.
+
+    Parameters
+    ----------
+    email : str
+        Email of the user, must be provided.
+    password : str
+        Password of the user, must be provided.
 
     Returns
     -------
     str
-        New access token.
+        Access token upon successful login.
 
     Raises
     ------
     dict
-        Error message and status code if an unexpected error occurs during token refresh.
+        Error message and status code if provided email does not exist, if the password is incorrect, or if an unexpected error occurs during login.
     """
 
     @jwt_required(refresh=True)
-    def post(self):
-        """
-        Handles HTTP POST request for token refresh.
-
-        Returns
-        -------
-        str
-            New access token.
-        """
-        try:
-            identity = get_jwt_identity()
-            user = {"id": identity}
-            access_token = create_access_token(identity=user, fresh=False)
-            return jsonify(access_token=access_token)
-
-        except Exception as e:
-            return {"error": f"An unexpected error occurred: {str(e)}"}, 500
+    def post():
+        identity = get_jwt_identity()
+        access_token = create_access_token(identity=identity, fresh=False)
+        return jsonify(access_token=access_token)

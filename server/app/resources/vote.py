@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from app.models.post import Post
+from models.post import Post
 from flask_jwt_extended import current_user, jwt_required
 from flask import abort
 
@@ -46,11 +46,11 @@ class VoteResource(Resource):
                 post.update(add_to_set__votes=current_user.id)
                 return {"message": "Vote recorded successfully by the current user"}, 201
             else:
-                return {"message": "User has already voted for this post"}, 400
+                return {"message": "User has already voted for this post"}, 200
 
         except Exception as e:
             print(e)
-            return {"error": f"An unexpected error occurred: {str(e)}"}, 500
+            return Exception(f"An unexpected error occurred: {str(e)}")
 
     @jwt_required(fresh=True)
     def delete(self, post_id):
@@ -86,4 +86,4 @@ class VoteResource(Resource):
 
         except Exception as e:
             print(e)
-            return {"error": f"An unexpected error occurred: {str(e)}"}, 500
+            return Exception(f"An unexpected error occurred: {str(e)}")
