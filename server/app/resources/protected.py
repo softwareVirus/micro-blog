@@ -32,7 +32,7 @@ class Profile(Resource):
         A JSON response containing the user's full name and email.
     """
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def get(self):
         """
         Handles HTTP GET request for retrieving user profile information.
