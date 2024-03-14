@@ -15,8 +15,6 @@ class User(Document):
         Email of the user, unique and required.
     hashed_password : StringField
         Hashed password of the user, required.
-    salt : StringField
-        Salt used in password hashing, required.
     created_at : DateTimeField
         Timestamp representing the user's creation date (default: current UTC time).
     updated_at : DateTimeField
@@ -35,8 +33,7 @@ class User(Document):
     ...     first_name="John",
     ...     last_name="Doe",
     ...     email="john.doe@example.com",
-    ...     hashed_password="hashed_password",
-    ...     salt="random_salt"
+    ...     hashed_password="hashed_password"
     ... )
     >>> new_user.save()
     """
@@ -45,7 +42,6 @@ class User(Document):
     last_name = StringField(max_length=200, required=True)
     email = EmailField(unique=True, required=True)
     hashed_password = StringField(required=True)
-    salt = StringField(required=True)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
 
