@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
-from models.post import Post
+from app.models.post import Post
+from mongoengine.errors import ValidationError, DoesNotExist
 from flask_jwt_extended import current_user, jwt_required
 import ast
 
@@ -49,12 +50,17 @@ class PostResource(Resource):
         Exception
             If an unexpected error occurs while retrieving posts.
         """
-        if post_id:
-            post = Post.objects(id=post_id).get()
-            return post.to_dict()
-        else:
-            posts = Post.objects()
-            return [post.to_dict() for post in posts]
+        try:
+            if post_id:
+                post = Post.objects(id=post_id).get()
+                if post is None: 
+                    raise DoesNotExist("Post does not exist")
+                return post.to_dict()
+            else:
+                posts = Post.objects()
+                return [post.to_dict() for post in posts]
+        except Exception as e:
+            return {"error": f"An unexpected error occurred: {str(e)}"}, 400
 
     @jwt_required(fresh=True)
     def post(self):
@@ -114,14 +120,18 @@ class PostResource(Resource):
         """
 
         try:
+            if not Post.objects.get(id=post_id):
+                return {"error": "Post not found"}, 403
             post = Post.objects.get(id=post_id)
-
             if post.author.id == current_user.id:
                 post.delete()
                 return {"message": "Post deleted successfully"}
             else:
                 return {"error": "You don't have permission to delete this post"}, 403
-        except Post.DoesNotExist:
-            return {"error": "Post not found"}, 404
+        except DoesNotExist:
+            return {"error": "Post not found"}, 403
+        except ValidationError:
+            return {"error": "Post not found"}, 403    
         except Exception as e:
+            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
