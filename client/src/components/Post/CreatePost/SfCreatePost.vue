@@ -11,14 +11,16 @@
             </button>
         </div>
         <div>
-            <SfEditor 
-                v-if="mode == 'editor'" 
-                :title="title" 
-                :content="content" 
-                @update:title="newValue => title = newValue"
-                @update:content="newValue => content = newValue" 
-            />
-            <SfDisplayPost v-else :title="title" :content="content"/>
+            <SfEditor v-if="mode == 'editor'" :title="title" :content="content" :tags="tags"
+                @update:title="newValue => title = newValue" @update:content="newValue => content = newValue"
+                @update:tags="newValue => {
+                if (selectedTags.includes(newValue)) {
+                    selectedTags = selectedTags.filter(item => item != newValue)
+                } else {
+                    selectedTags.push(newValue)
+                }
+            }" :selectedTags="selectedTags" />
+            <SfDisplayPost v-else :title="title" :content="content" :tags="selectedTags" />
         </div>
     </div>
 </template>
@@ -37,12 +39,18 @@ export default {
         return {
             mode: "editor",
             content: "",
-            title: ""
+            title: "",
+            selectedTags: []
         }
     },
     methods: {
         toggleMode(mode) {
             this.mode = mode
+        }
+    },
+    computed: {
+        tags() {
+            return this.$store.state.tags
         }
     }
 }
