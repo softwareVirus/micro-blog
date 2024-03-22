@@ -5,13 +5,13 @@
                 @click.prevent="toggleMode('all-posts')">
                 All Posts
             </Button>
-            <button :class="(mode == 'my-posts' ? 'selected-mode-button ' : '') + 'mode-button'"
-                @click.prevent="toggleMode('my-posts')">
-                My Posts
+            <button :class="(mode == 'feed-posts' ? 'selected-mode-button ' : '') + 'mode-button'"
+                @click.prevent="toggleMode('feed-posts')">
+                Feed
             </button>
         </div>
-        <SfListPosts v-if="mode === 'all-posts'"/>
-        <SfListPosts v-else :my-posts="true"/>
+        <SfListPosts v-if="mode === 'all-posts'" mode="'all-posts'" key="all_posts" />
+        <SfListPosts v-else-if="mode === 'feed-posts'" mode='feed-posts' key="feed_posts" />
     </div>
 </template>
 
