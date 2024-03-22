@@ -9,7 +9,9 @@ import "quill/dist/quill.snow.css"; // for snow theme
 import "quill/dist/quill.bubble.css"; // for bubble theme
 import main from "./store";
 import { store } from "./store";
-main(store);
+
+await main(store);
+
 Vue.use(VueQuillEditor /* { default global options } */);
 Vue.config.productionTip = false;
 
