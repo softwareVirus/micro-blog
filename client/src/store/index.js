@@ -67,13 +67,14 @@ axiosApiInstance.interceptors.response.use(
   }
 );
 
-axiosApiInstance.defaults.baseURL = "http://127.0.0.1:5000/";
+axiosApiInstance.defaults.baseURL = "http://localhost:5000/";
 
 export const store = new Vuex.Store({
   state: {
     user: null,
     posts: [],
     currentPost: null,
+    tags: ["Tag 1", "Tag 2"],
   },
   mutations: {
     setUser(state, user) {
@@ -88,6 +89,9 @@ export const store = new Vuex.Store({
     setCurrentPost(state, post) {
       state.currentPost = post;
     },
+    setTags(state, tags) {
+      state.tags = tags
+    }
   },
   actions: {
     login: async function ({ commit, state }, user) {
@@ -136,6 +140,26 @@ export const store = new Vuex.Store({
         return error;
       }
     },
+    addTag: async function (_, post) {
+      try {
+        const response = await axiosApiInstance.post("/tags", {
+          tag: post
+        });
+
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    getTags: async function ({commit}, user_id) {
+      try {
+        const response = await axiosApiInstance.get(`/tags${user_id ? '/'+user_id: ''}`);
+        commit('setTags', response.data)
+        console.log(response);
+      } catch (error) {
+        console.log(error);
+      }
+    }, 
     createPost: async function (_, post) {
       try {
         const response = await axiosApiInstance.post("/posts", post);
@@ -145,9 +169,71 @@ export const store = new Vuex.Store({
         console.log(error);
       }
     },
-    getPosts: async function ({ commit }) {
+    getPosts: async function ({ commit }, tags) {
       try {
-        const response = await axiosApiInstance.get("/posts");
+        console.log(tags, "herre");
+        const params = {};
+        if (tags && tags.length > 0) {
+          params.tags = tags.join(",");
+        }
+        const response = await axiosApiInstance.get((tags && tags.length > 0 ? "/posts" : '/posts'), {
+          params: params,
+        });
+        console.log(response);
+        commit(
+          "setPosts",
+          response.data.map((post) => {
+            post.author.firstName = post.author.first_name;
+            post.author.lastName = post.author.last_name;
+            delete post.author.first_name;
+            delete post.author.last_name;
+            return post;
+          })
+        );
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+    },
+    getFeedPosts: async function ({ commit }, tags) {
+      try {
+        console.log(tags, "herre");
+        const params = {};
+        if (tags && tags.length > 0) {
+          params.tags = tags.join(",");
+        }
+        const response = await axiosApiInstance.get("/feed_posts", {
+          params: params,
+        });
+        console.log(response);
+        commit(
+          "setPosts",
+          response.data.map((post) => {
+            post.author.firstName = post.author.first_name;
+            post.author.lastName = post.author.last_name;
+            delete post.author.first_name;
+            delete post.author.last_name;
+            return post;
+          })
+        );
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        return [];
+      }
+    },
+    getUserPosts: async function ({ commit }, data) {
+      try {
+        const { userId, tags} = data
+        console.log(tags, "herre");
+        const params = {};
+        if (tags && tags.length > 0) {
+          params.tags = tags.join(",");
+        }
+        const response = await axiosApiInstance.get("/user_posts"+"/"+userId, {
+          params: params,
+        });
         console.log(response);
         commit(
           "setPosts",
@@ -167,7 +253,7 @@ export const store = new Vuex.Store({
     },
     getPost: async function ({ commit, state }, postId) {
       try {
-        const response = await axiosApiInstance.get(`/posts/${postId}`);
+        const response = await axiosApiInstance.get(`/post/${postId}`);
         const comments = await axiosApiInstance.get(
           `/posts/${response.data.id}/comments`
         );
@@ -206,7 +292,9 @@ export const store = new Vuex.Store({
           `/posts/${postId}/comments/${commentId}`
         );
         let post = state.currentPost;
-        let comment = post.comments.find((comment) => comment.id === commentId);
+        let comment = post.comments.find(
+          (comment) => comment.id === commentId
+        );
         console.log(response, comment);
         comment.childComments.push(
           ...response.data.map((comment) => {
@@ -286,10 +374,47 @@ export const store = new Vuex.Store({
     decreaseVote: async function ({ state }, postId) {
       try {
         await axiosApiInstance.delete("/vote/" + postId);
-        state.currentPost.votes = state.currentPost.votes.filter((vote) => vote != state.user.id);
+        state.currentPost.votes = state.currentPost.votes.filter(
+          (vote) => vote != state.user.id
+        );
       } catch (error) {
         console.log(error);
         throw Error;
+      }
+    },
+    getProfile: async function (_, userId) {
+      try {
+        const user = (await axiosApiInstance.get("/profile/" + userId)).data;
+        user.firstName = user.first_name
+        user.lastName = user.last_name
+        delete user.first_name
+        delete user.last_name
+        return user
+      } catch (error) {
+        console.log(error);
+        throw Error;
+      }
+    },
+    follow: async function ({ state }, userId) {
+      try {
+        await axiosApiInstance.post("/follow/" + userId);
+        state.user.following.push(userId);
+        return true
+      } catch (error) {
+        console.log(error);
+        return false
+      }
+    },
+    unfollow: async function ({ state }, userId) {
+      try {
+        await axiosApiInstance.delete("/follow/" + userId);
+        state.user.following = state.user.following.filter(
+          (follow) => follow != userId
+        );
+        return true
+      } catch (error) {
+        console.log(error);
+        return false
       }
     },
     removeCurrentPost: function ({ commit }) {
@@ -319,8 +444,9 @@ export default async function main(store) {
       localStorage.clear();
       return store;
     } else {
-      store.state.user = user;
+      store.state.user = await store.dispatch("getProfile", user.id);
     }
+    await store.dispatch("getTags")
   } catch (e) {
     console.log(e);
   }
