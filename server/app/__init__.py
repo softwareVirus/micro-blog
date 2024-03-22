@@ -13,10 +13,12 @@ from app.resources.auth import (
     LogoutResource,
     RefreshResource,
 )
+from app.resources.tag import TagResource
 from app.resources.comment import CommentResource
 from app.resources.post import PostResource
 from app.resources.protected import Profile
 from app.resources.vote import VoteResource
+from app.resources.follow import FollowResource
 from app.models.revoked_token import RevokedToken
 from flask_cors import CORS
 from app.util.util import ACCESS_EXPIRES
@@ -94,19 +96,32 @@ api.add_resource(
     "/posts/<string:post_id>/comments/<string:comment_id>",
 )
 api.add_resource(VoteResource, "/vote/<string:post_id>")
-api.add_resource(PostResource, "/posts", "/posts/<string:post_id>")
+api.add_resource(FollowResource, "/follow/<string:user_id>")
+api.add_resource(
+    PostResource,
+    "/posts",
+    "/posts/<string:tags>",
+    "/post/<string:post_id>",
+    "/feed_posts",
+    "/user_posts/<string:user_id>",
+    "/user_posts/<string:user_id>/<string:tags>",
+)
 api.add_resource(SignupResource, "/signup")
 api.add_resource(LoginResource, "/login")
-api.add_resource(Profile, "/profile")
+api.add_resource(Profile, "/profile/<string:user_id>")
 api.add_resource(LogoutResource, "/logout")
 api.add_resource(RefreshResource, "/refresh_token")
+api.add_resource(TagResource, "/tags", "/tags/<string:user_id>")
+
 
 def create_app(mode="dev"):
-    #with open(f"./config.json", "r") as f:
+    # with open(f"./config.json", "r") as f:
     #    config = json.load(f)
     print(mode)
     if mode == "dev":
-        connect(host="mongodb+srv://hello:12053085408a@cluster0.pn5ujkz.mongodb.net/?retryWrites=true&w=majority")#host=config["dev"]["MONGODB_URI"])
+        connect(
+            host="mongodb+srv://hello:12053085408a@cluster0.pn5ujkz.mongodb.net/?retryWrites=true&w=majority"
+        )  # host=config["dev"]["MONGODB_URI"])
     if mode == "test":
         connect(
             "mongoenginetest",
