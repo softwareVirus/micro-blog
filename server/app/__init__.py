@@ -120,7 +120,7 @@ def create_app(mode="dev"):
     print(mode)
     if mode == "dev":
         connect(
-            host="mongodb+srv://hello:12053085408a@cluster0.pn5ujkz.mongodb.net/?retryWrites=true&w=majority"
+            host=os.getenv("MONGODB_CONNECTION_STRING")
         )  # host=config["dev"]["MONGODB_URI"])
     if mode == "test":
         connect(
