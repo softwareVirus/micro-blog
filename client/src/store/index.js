@@ -34,7 +34,6 @@ const axiosApiInstance = axios.create();
 // Request interceptor for API calls
 axiosApiInstance.interceptors.request.use(
   async (config) => {
-    console.log(config);
     const key = localStorage.getItem("access_token");
     config.headers = {
       Authorization: `Bearer ${key}`,
@@ -55,7 +54,7 @@ axiosApiInstance.interceptors.response.use(
   },
   async function (error) {
     const originalRequest = error.config;
-    console.log(error);
+    
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const access_token = refreshToken();
@@ -96,7 +95,7 @@ export const store = new Vuex.Store({
   actions: {
     login: async function ({ commit, state }, user) {
       try {
-        console.log(state);
+        
         const { email, password } = user;
         const response = await axios.post("/login", { email, password });
         commit("setUser", response.data.user);
@@ -109,7 +108,7 @@ export const store = new Vuex.Store({
     },
     signup: async function ({ commit, state }, user) {
       try {
-        console.log(state);
+        
         const { firstName, lastName, email, password } = user;
         const response = await axiosApiInstance.post("/signup", {
           first_name: firstName,
@@ -122,7 +121,7 @@ export const store = new Vuex.Store({
         localStorage.setItem("refresh_token", response.data.refresh_token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
       } catch (error) {
-        console.log(error);
+        
         return error;
       }
     },
@@ -146,32 +145,32 @@ export const store = new Vuex.Store({
           tag: post
         });
 
-        console.log(response);
+        
       } catch (error) {
-        console.log(error);
+        
       }
     },
     getTags: async function ({commit}, user_id) {
       try {
         const response = await axiosApiInstance.get(`/tags${user_id ? '/'+user_id: ''}`);
         commit('setTags', response.data)
-        console.log(response);
+        
       } catch (error) {
-        console.log(error);
+        
       }
     }, 
     createPost: async function (_, post) {
       try {
         const response = await axiosApiInstance.post("/posts", post);
 
-        console.log(response);
+        
       } catch (error) {
-        console.log(error);
+        
       }
     },
     getPosts: async function ({ commit }, tags) {
       try {
-        console.log(tags, "herre");
+        
         const params = {};
         if (tags && tags.length > 0) {
           params.tags = tags.join(",");
@@ -179,7 +178,7 @@ export const store = new Vuex.Store({
         const response = await axiosApiInstance.get((tags && tags.length > 0 ? "/posts" : '/posts'), {
           params: params,
         });
-        console.log(response);
+        
         commit(
           "setPosts",
           response.data.map((post) => {
@@ -192,13 +191,13 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
     getFeedPosts: async function ({ commit }, tags) {
       try {
-        console.log(tags, "herre");
+        
         const params = {};
         if (tags && tags.length > 0) {
           params.tags = tags.join(",");
@@ -206,7 +205,7 @@ export const store = new Vuex.Store({
         const response = await axiosApiInstance.get("/feed_posts", {
           params: params,
         });
-        console.log(response);
+        
         commit(
           "setPosts",
           response.data.map((post) => {
@@ -219,14 +218,14 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
     getUserPosts: async function ({ commit }, data) {
       try {
         const { userId, tags} = data
-        console.log(tags, "herre");
+        
         const params = {};
         if (tags && tags.length > 0) {
           params.tags = tags.join(",");
@@ -234,7 +233,7 @@ export const store = new Vuex.Store({
         const response = await axiosApiInstance.get("/user_posts"+"/"+userId, {
           params: params,
         });
-        console.log(response);
+        
         commit(
           "setPosts",
           response.data.map((post) => {
@@ -247,7 +246,7 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
@@ -257,7 +256,7 @@ export const store = new Vuex.Store({
         const comments = await axiosApiInstance.get(
           `/posts/${response.data.id}/comments`
         );
-        console.log(comments);
+        
         response.data.author.firstName = response.data.author.first_name;
         response.data.author.lastName = response.data.author.last_name;
         delete response.data.author.first_name;
@@ -278,11 +277,11 @@ export const store = new Vuex.Store({
             return comment;
           }),
         });
-        console.log(state.currentPost);
+        
         return response.data;
       } catch (error) {
         commit("setCurrentPost", null);
-        console.log(error);
+        
         return [];
       }
     },
@@ -295,7 +294,7 @@ export const store = new Vuex.Store({
         let comment = post.comments.find(
           (comment) => comment.id === commentId
         );
-        console.log(response, comment);
+        
         comment.childComments.push(
           ...response.data.map((comment) => {
             comment.author.firstName = comment.author.first_name;
@@ -312,7 +311,7 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
@@ -342,7 +341,7 @@ export const store = new Vuex.Store({
         delete comment.author.last_name;
         let post = state.currentPost;
 
-        console.log(response);
+        
         if (parentComment === null) {
           if (post) {
             post.comments.push(comment);
@@ -352,13 +351,13 @@ export const store = new Vuex.Store({
             let parent_comment = post.comments.find(
               (item) => item.id === parentComment
             );
-            console.log(parent_comment);
+            
             parent_comment.childComments.push(comment);
           }
         }
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
@@ -367,7 +366,7 @@ export const store = new Vuex.Store({
         await axiosApiInstance.post("/vote/" + postId);
         state.currentPost.votes.push(state.user.id);
       } catch (error) {
-        console.log(error);
+        
         throw Error;
       }
     },
@@ -378,7 +377,7 @@ export const store = new Vuex.Store({
           (vote) => vote != state.user.id
         );
       } catch (error) {
-        console.log(error);
+        
         throw Error;
       }
     },
@@ -391,7 +390,7 @@ export const store = new Vuex.Store({
         delete user.last_name
         return user
       } catch (error) {
-        console.log(error);
+        
         throw Error;
       }
     },
@@ -401,7 +400,7 @@ export const store = new Vuex.Store({
         state.user.following.push(userId);
         return true
       } catch (error) {
-        console.log(error);
+        
         return false
       }
     },
@@ -413,7 +412,7 @@ export const store = new Vuex.Store({
         );
         return true
       } catch (error) {
-        console.log(error);
+        
         return false
       }
     },
@@ -428,7 +427,7 @@ export const store = new Vuex.Store({
           state.posts.filter((post) => post.id !== postId)
         );
       } catch (error) {
-        console.log(error);
+        
       }
     },
   },
@@ -438,9 +437,9 @@ export const store = new Vuex.Store({
 export default async function main(store) {
   try {
     let user = JSON.parse(localStorage.getItem("user"));
-    console.log("here2");
+    
     if (user === null) {
-      console.log(user);
+      
       localStorage.clear();
       return store;
     } else {
@@ -448,8 +447,8 @@ export default async function main(store) {
     }
     await store.dispatch("getTags")
   } catch (e) {
-    console.log(e);
+    
   }
-  console.log("here");
+  
   return store;
 }

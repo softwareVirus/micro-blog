@@ -99,7 +99,6 @@ export default {
     },
     watch: {
         async selectedTags(newValue, oldValue) {
-            console.log(newValue, oldValue)
             await this.getUserPosts({
                 userId: this.userId,
                 tags: newValue
@@ -111,7 +110,6 @@ export default {
         await this.getUserPosts({
             userId: this.userId
         })
-        console.log(this.profile, this.tags)
     }
 }
 </script>
