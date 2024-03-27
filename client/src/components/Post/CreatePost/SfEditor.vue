@@ -83,11 +83,6 @@ export default {
             }
         }
     },
-    watch: {
-        selectedTags(a, s) {
-            console.log(a, s)
-        }
-    },
     methods: {
         ...mapActions(["createPost", "addTag"]),
         updateContent(event) {

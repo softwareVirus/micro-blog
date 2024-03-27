@@ -94,7 +94,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this.tags)
         this.getPost(this.$route.params.id)
     },
     beforeDestroy() {
