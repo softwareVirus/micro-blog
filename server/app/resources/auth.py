@@ -166,7 +166,6 @@ class LoginResource(Resource):
             }
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
 
@@ -201,7 +200,6 @@ class LogoutResource(Resource):
             return jsonify(msg="Access token revoked")
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
 

@@ -57,7 +57,6 @@ class FollowResource(Resource):
         except User.DoesNotExist:
             return {"message": "User not found"}, 404
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
     @jwt_required()
@@ -95,5 +94,4 @@ class FollowResource(Resource):
         except User.DoesNotExist:
             return {"message": "User not found"}, 404
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
