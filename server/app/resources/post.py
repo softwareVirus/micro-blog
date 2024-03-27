@@ -87,7 +87,6 @@ class PostResource(Resource):
                     posts = Post.objects()
                 return [post.to_dict() for post in posts]
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 400
 
     @jwt_required(fresh=True)
@@ -128,7 +127,6 @@ class PostResource(Resource):
 
             return post_dict, 201
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 400
 
     @jwt_required(fresh=True)
@@ -170,5 +168,4 @@ class PostResource(Resource):
         except ValidationError:
             return {"error": "Post not found"}, 403
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
