@@ -50,26 +50,10 @@ class TagResource(Resource):
             tags = user.tags
             return [tag.to_dict() for tag in tags], 200
         except Exception as e:
-            print(e)
-            return {"error": f"An unexpected error occurred: {str(e)}"}, 400
+                return {"error": f"An unexpected error occurred: {str(e)}"}, 400
 
     @jwt_required(fresh=True)
     def post(self):
-        """
-        Create a new post.
-
-        Returns
-        -------
-        dict
-            Dictionary representing the newly created post.
-        int
-            HTTP status code indicating the success of the operation.
-
-        Raises
-        ------
-        Exception
-            If an unexpected error occurs while creating a post.
-        """
         """
         Create a new tag.
 
@@ -103,5 +87,4 @@ class TagResource(Resource):
             # Return the newly created tag and HTTP status code
             return tag_dict, 201
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 400
