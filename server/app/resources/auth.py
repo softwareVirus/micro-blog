@@ -88,6 +88,8 @@ class SignupResource(Resource):
                     "id": str(new_user.id),
                     "firstName": new_user.first_name,
                     "lastName": new_user.last_name,
+                    "followers": new_user.followers,
+                    "following": new_user.following,
                 },
                 "access_token": access_token,
                 "refresh_token": refresh_token,
@@ -156,13 +158,14 @@ class LoginResource(Resource):
                     "id": str(user.id),
                     "firstName": user.first_name,
                     "lastName": user.last_name,
+                    "followers": user.followers,
+                    "following": user.following,
                 },
                 "access_token": access_token,
                 "refresh_token": refresh_token,
             }
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
 
@@ -197,7 +200,6 @@ class LogoutResource(Resource):
             return jsonify(msg="Access token revoked")
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
 
