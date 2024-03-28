@@ -6,6 +6,7 @@ import SfDisplayPost from "../components/Post/SfDisplayPost";
 import SfCreatePost from "../components/Post/CreatePost/SfCreatePost";
 import SfHomePage from "../components/SfHomePage";
 import SfErrorPage from "../components/SfErrorPage";
+import SfUserProfile from "../components/UserProfile/SfUserProfile"
 import { store } from "../store/index";
 
 const routes = [
@@ -18,6 +19,11 @@ const routes = [
     path: "/signup",
     component: SfSignup,
     meta: { requiresAuth: false },
+  },
+  {
+    path: "/profile/:id",
+    component: SfUserProfile,
+    meta: { requiresAuth: true },
   },
   {
     path: "/list-posts",

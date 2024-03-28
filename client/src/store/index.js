@@ -34,7 +34,6 @@ const axiosApiInstance = axios.create();
 // Request interceptor for API calls
 axiosApiInstance.interceptors.request.use(
   async (config) => {
-    console.log(config);
     const key = localStorage.getItem("access_token");
     config.headers = {
       Authorization: `Bearer ${key}`,
@@ -55,7 +54,7 @@ axiosApiInstance.interceptors.response.use(
   },
   async function (error) {
     const originalRequest = error.config;
-    console.log(error);
+    
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const access_token = refreshToken();
@@ -67,13 +66,14 @@ axiosApiInstance.interceptors.response.use(
   }
 );
 
-axiosApiInstance.defaults.baseURL = "http://127.0.0.1:5000/";
+axiosApiInstance.defaults.baseURL = "http://localhost:5000/";
 
 export const store = new Vuex.Store({
   state: {
     user: null,
     posts: [],
     currentPost: null,
+    tags: ["Tag 1", "Tag 2"],
   },
   mutations: {
     setUser(state, user) {
@@ -88,11 +88,14 @@ export const store = new Vuex.Store({
     setCurrentPost(state, post) {
       state.currentPost = post;
     },
+    setTags(state, tags) {
+      state.tags = tags
+    }
   },
   actions: {
     login: async function ({ commit, state }, user) {
       try {
-        console.log(state);
+        
         const { email, password } = user;
         const response = await axios.post("/login", { email, password });
         commit("setUser", response.data.user);
@@ -105,7 +108,7 @@ export const store = new Vuex.Store({
     },
     signup: async function ({ commit, state }, user) {
       try {
-        console.log(state);
+        
         const { firstName, lastName, email, password } = user;
         const response = await axiosApiInstance.post("/signup", {
           first_name: firstName,
@@ -118,7 +121,7 @@ export const store = new Vuex.Store({
         localStorage.setItem("refresh_token", response.data.refresh_token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
       } catch (error) {
-        console.log(error);
+        
         return error;
       }
     },
@@ -136,19 +139,46 @@ export const store = new Vuex.Store({
         return error;
       }
     },
+    addTag: async function (_, post) {
+      try {
+        const response = await axiosApiInstance.post("/tags", {
+          tag: post
+        });
+
+        
+      } catch (error) {
+        
+      }
+    },
+    getTags: async function ({commit}, user_id) {
+      try {
+        const response = await axiosApiInstance.get(`/tags${user_id ? '/'+user_id: ''}`);
+        commit('setTags', response.data)
+        
+      } catch (error) {
+        
+      }
+    }, 
     createPost: async function (_, post) {
       try {
         const response = await axiosApiInstance.post("/posts", post);
 
-        console.log(response);
+        
       } catch (error) {
-        console.log(error);
+        
       }
     },
-    getPosts: async function ({ commit }) {
+    getPosts: async function ({ commit }, tags) {
       try {
-        const response = await axiosApiInstance.get("/posts");
-        console.log(response);
+        
+        const params = {};
+        if (tags && tags.length > 0) {
+          params.tags = tags.join(",");
+        }
+        const response = await axiosApiInstance.get((tags && tags.length > 0 ? "/posts" : '/posts'), {
+          params: params,
+        });
+        
         commit(
           "setPosts",
           response.data.map((post) => {
@@ -161,17 +191,72 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        console.log(error);
+        
+        return [];
+      }
+    },
+    getFeedPosts: async function ({ commit }, tags) {
+      try {
+        
+        const params = {};
+        if (tags && tags.length > 0) {
+          params.tags = tags.join(",");
+        }
+        const response = await axiosApiInstance.get("/feed_posts", {
+          params: params,
+        });
+        
+        commit(
+          "setPosts",
+          response.data.map((post) => {
+            post.author.firstName = post.author.first_name;
+            post.author.lastName = post.author.last_name;
+            delete post.author.first_name;
+            delete post.author.last_name;
+            return post;
+          })
+        );
+        return response.data;
+      } catch (error) {
+        
+        return [];
+      }
+    },
+    getUserPosts: async function ({ commit }, data) {
+      try {
+        const { userId, tags} = data
+        
+        const params = {};
+        if (tags && tags.length > 0) {
+          params.tags = tags.join(",");
+        }
+        const response = await axiosApiInstance.get("/user_posts"+"/"+userId, {
+          params: params,
+        });
+        
+        commit(
+          "setPosts",
+          response.data.map((post) => {
+            post.author.firstName = post.author.first_name;
+            post.author.lastName = post.author.last_name;
+            delete post.author.first_name;
+            delete post.author.last_name;
+            return post;
+          })
+        );
+        return response.data;
+      } catch (error) {
+        
         return [];
       }
     },
     getPost: async function ({ commit, state }, postId) {
       try {
-        const response = await axiosApiInstance.get(`/posts/${postId}`);
+        const response = await axiosApiInstance.get(`/post/${postId}`);
         const comments = await axiosApiInstance.get(
           `/posts/${response.data.id}/comments`
         );
-        console.log(comments);
+        
         response.data.author.firstName = response.data.author.first_name;
         response.data.author.lastName = response.data.author.last_name;
         delete response.data.author.first_name;
@@ -192,11 +277,11 @@ export const store = new Vuex.Store({
             return comment;
           }),
         });
-        console.log(state.currentPost);
+        
         return response.data;
       } catch (error) {
         commit("setCurrentPost", null);
-        console.log(error);
+        
         return [];
       }
     },
@@ -206,8 +291,10 @@ export const store = new Vuex.Store({
           `/posts/${postId}/comments/${commentId}`
         );
         let post = state.currentPost;
-        let comment = post.comments.find((comment) => comment.id === commentId);
-        console.log(response, comment);
+        let comment = post.comments.find(
+          (comment) => comment.id === commentId
+        );
+        
         comment.childComments.push(
           ...response.data.map((comment) => {
             comment.author.firstName = comment.author.first_name;
@@ -224,7 +311,7 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
@@ -254,7 +341,7 @@ export const store = new Vuex.Store({
         delete comment.author.last_name;
         let post = state.currentPost;
 
-        console.log(response);
+        
         if (parentComment === null) {
           if (post) {
             post.comments.push(comment);
@@ -264,13 +351,13 @@ export const store = new Vuex.Store({
             let parent_comment = post.comments.find(
               (item) => item.id === parentComment
             );
-            console.log(parent_comment);
+            
             parent_comment.childComments.push(comment);
           }
         }
         return response.data;
       } catch (error) {
-        console.log(error);
+        
         return [];
       }
     },
@@ -279,17 +366,54 @@ export const store = new Vuex.Store({
         await axiosApiInstance.post("/vote/" + postId);
         state.currentPost.votes.push(state.user.id);
       } catch (error) {
-        console.log(error);
+        
         throw Error;
       }
     },
     decreaseVote: async function ({ state }, postId) {
       try {
         await axiosApiInstance.delete("/vote/" + postId);
-        state.currentPost.votes = state.currentPost.votes.filter((vote) => vote != state.user.id);
+        state.currentPost.votes = state.currentPost.votes.filter(
+          (vote) => vote != state.user.id
+        );
       } catch (error) {
-        console.log(error);
+        
         throw Error;
+      }
+    },
+    getProfile: async function (_, userId) {
+      try {
+        const user = (await axiosApiInstance.get("/profile/" + userId)).data;
+        user.firstName = user.first_name
+        user.lastName = user.last_name
+        delete user.first_name
+        delete user.last_name
+        return user
+      } catch (error) {
+        
+        throw Error;
+      }
+    },
+    follow: async function ({ state }, userId) {
+      try {
+        await axiosApiInstance.post("/follow/" + userId);
+        state.user.following.push(userId);
+        return true
+      } catch (error) {
+        
+        return false
+      }
+    },
+    unfollow: async function ({ state }, userId) {
+      try {
+        await axiosApiInstance.delete("/follow/" + userId);
+        state.user.following = state.user.following.filter(
+          (follow) => follow != userId
+        );
+        return true
+      } catch (error) {
+        
+        return false
       }
     },
     removeCurrentPost: function ({ commit }) {
@@ -303,7 +427,7 @@ export const store = new Vuex.Store({
           state.posts.filter((post) => post.id !== postId)
         );
       } catch (error) {
-        console.log(error);
+        
       }
     },
   },
@@ -313,17 +437,18 @@ export const store = new Vuex.Store({
 export default async function main(store) {
   try {
     let user = JSON.parse(localStorage.getItem("user"));
-    console.log("here2");
+    
     if (user === null) {
-      console.log(user);
+      
       localStorage.clear();
       return store;
     } else {
-      store.state.user = user;
+      store.state.user = await store.dispatch("getProfile", user.id);
     }
+    await store.dispatch("getTags")
   } catch (e) {
-    console.log(e);
+    
   }
-  console.log("here");
+  
   return store;
 }
