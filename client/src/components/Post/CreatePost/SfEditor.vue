@@ -8,11 +8,39 @@
             </div>
             <button class="create-post-button" type="submit">Create</button>
         </div>
+        <div class="tag-container">
+            <h4>Tags</h4>
+            <div class="tag-checkbox-group">
+                <div v-for="tag in tags" class="tag-checkbox" :key="tag.id">
+                    <input type="checkbox" :id="tag.id"
+                        :checked="selectedTags.find(item => item == tag.id) !== undefined"
+                        @input="$emit('update:tags', tag.id)">
+                    <label :for="tag.id">{{ tag.tag }}</label>
+                </div>
+                <div class="tag-checkbox" v-if="!isOpen" @click.prevent="toggleIsOpen">
+                    <button id="tag-add-button" style="width: fit-content;">
+                        Add Tag +
+                    </button>
+                </div>
+                <div class="tag-input-container" v-else>
+                    <input id="tag-input" style="width: fit-content;" v-model="tagInput" />
+                    <button id="tag-add-button" style="width: fit-content;" @click.prevent="handleAddTag">
+                        Add
+                    </button>
+                    <button id="tag-add-button" style="width: fit-content; background-color: red; border-color: red"
+                        @click.prevent="toggleIsOpen">
+                        Cancel
+                    </button>
+                </div>
+
+            </div>
+        </div>
         <label for="content">Content</label>
-        <quill-editor class="editor" ref="myTextEditor" :value="content" :options="editorOption" @change="updateContent" />
+        <quill-editor class="editor" ref="myTextEditor" :value="content" :options="editorOption"
+            @change="updateContent" />
     </form>
 </template>
-  
+
 <script>
 import { quillEditor } from 'vue-quill-editor'
 import { mapActions } from 'vuex'
@@ -25,10 +53,14 @@ export default {
     },
     props: {
         title: String,
-        content: String
+        content: String,
+        tags: Array,
+        selectedTags: Array
     },
     data() {
         return {
+            isOpen: false,
+            tagInput: "",
             editorOption: {
                 modules: {
                     toolbar: [
@@ -52,9 +84,21 @@ export default {
         }
     },
     methods: {
-        ...mapActions(["createPost"]),
+        ...mapActions(["createPost", "addTag"]),
         updateContent(event) {
             this.$emit('update:content', event.html)
+        },
+        toggleIsOpen() {
+            this.isOpen = !this.isOpen
+            this.tagInput = ""
+        },
+        handleAddTag() {
+            if (this.tagInput == "") {
+                alert("input can not be empty!!")
+                return;
+            }
+            this.addTag(this.tagInput.toLowerCase().trim())
+            this.toggleIsOpen()
         },
         handleSubmit() {
             if (this.title.length < 2 || this.content.length == 0) {
@@ -63,7 +107,8 @@ export default {
             }
             this.createPost({
                 title: this.$props.title,
-                content: this.$props.content
+                content: this.$props.content,
+                tags: this.$props.selectedTags
             })
         }
     },
@@ -78,13 +123,30 @@ export default {
     emits: ['update:title', 'update:content']
 }
 </script>
-  
+
 <style scoped>
 .editor-header {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.tag-input-container {
+    display: flex;
+    max-height: 34px;
+    height: 100%;
+    border: 1px solid black;
+    padding: 2px;
+    gap: 0.25rem;
+    width: fit-content
+}
+
+#tag-input {
+    height: 30px;
+    outline: none;
+    margin: 0;
+    border: none;
 }
 
 .create-post-button {
@@ -144,10 +206,57 @@ input {
     flex-direction: column;
 }
 
+.tag-checkbox {
+    display: inline-block;
+    margin: 5px;
+}
+
+.tag-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.tag-checkbox label {
+    display: block;
+    border: 1px solid black;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border-radius: 0.25rem;
+}
+
+#tag-add-button {
+
+    display: block;
+    border: 1px solid black;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border-radius: 0.25rem;
+    font-size: 1rem;
+}
+
+.tag-checkbox input[type="checkbox"]:checked+label {
+    background-color: white;
+    color: black;
+}
+
+.tag-container {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+.tag-checkbox-group {
+    display: flex;
+    align-items: center
+}
+
 @media (max-width: 1000px) {
     .editor-container {
         width: 95vw;
     }
 }
 </style>
-

@@ -55,6 +55,7 @@ class Post(Document):
     author = ReferenceField("User", reverse_delete_rule=CASCADE)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    tags = ListField(ReferenceField("Tag"))
     votes = ListField(ReferenceField("User"))
     comments = ListField(ReferenceField("Comment"))
 
@@ -77,5 +78,6 @@ class Post(Document):
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
             "votes": [str(user.id) for user in self.votes],
+            "tags": [tag.to_dict() for tag in self.tags],
             "comments": [comment.to_dict() for comment in self.comments],
         }

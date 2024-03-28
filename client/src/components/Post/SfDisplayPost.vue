@@ -9,16 +9,29 @@
         </div>
         <div class="comment-container">
             <h1>
-                Authored By {{ post.author.firstName + " " + post.author.lastName }}
+                Authored By
+                <route-link :to="'/profile/' + post.author.id">
+                    {{ post.author.firstName + " " + post.author.lastName }}
+                </route-link>
             </h1>
             <div style="display: flex; width: 100%; justify-content: space-between; ">
                 <p class="post-card-author" style="margin: 0">
                     {{ formattedDate }}
                 </p>
-                <div style="display: flex; align-items: center; gap: 0.5rem" v-if="!title && !content">
+                <div style="display: flex; align-items: center; gap: 0.5rem"
+                    v-if="!title && !content && tags.length == 0">
                     <SfHeartIcon />
                     {{ post.votes.length }}
                 </div>
+            </div>
+            <div class="tag-container">
+                <h4>Tags</h4>
+                <div class="tag-link-group" v-if="tags && tags.length > 0">
+                    <route-link v-for="tag in tags" class="tag-link" :key="tag.tag">
+                        {{ tag.tag }}
+                    </route-link>
+                </div>
+                <h4 v-else style="margin: 0; margin-left: 0.5rem;">No Tags</h4>
             </div>
             <h1>
                 Comments
@@ -52,6 +65,10 @@ export default {
         content: {
             type: String,
             default: null
+        },
+        tags: {
+            type: Array,
+            default: () => []
         }
     },
     methods: {
@@ -115,6 +132,7 @@ export default {
     font-size: 1rem;
     margin-top: 0;
     margin-bottom: 2.5rem;
+    text-align: left
 }
 
 #dot {
@@ -122,6 +140,33 @@ export default {
 }
 
 .post-card-content {
+    text-align: left;
+}
+
+.tag-link {
+    display: block;
+    border: 1px solid black;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: black;
+    color: white;
+    border-radius: 0.25rem;
+}
+
+.tag-link-group {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+}
+
+.tag-container {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 0.5rem;
+}
+
+.comment-container>h1 {
     text-align: left;
 }
 </style>
