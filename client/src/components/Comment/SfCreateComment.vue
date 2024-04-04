@@ -35,7 +35,7 @@ export default {
     methods: {
         ...mapActions(["createComment"]),
         handleCreateComment() {
-            console.log(this.parentComment)
+            
             this.createComment({
                 content: this.comment,
                 postId: this.$route.params.id,
