@@ -49,7 +49,6 @@ class VoteResource(Resource):
                 return {"message": "User has already voted for this post"}, 400
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
 
     @jwt_required(fresh=True)
@@ -85,5 +84,4 @@ class VoteResource(Resource):
                 return {"message": "User has not voted for this post"}, 400
 
         except Exception as e:
-            print(e)
             return {"error": f"An unexpected error occurred: {str(e)}"}, 500
