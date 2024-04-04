@@ -14,7 +14,7 @@ export default {
     methods: {
         ...mapActions(["increaseVote", "decreaseVote"]),
         handleVote() {
-            console.log(this.isFilled)
+            
             if (this.isFilled) {
                 this.decreaseVote(this.$route.params.id)
             } else {
