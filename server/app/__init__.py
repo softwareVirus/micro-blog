@@ -20,9 +20,10 @@ from app.resources.protected import Profile
 from app.resources.vote import VoteResource
 from app.resources.follow import FollowResource
 from app.models.revoked_token import RevokedToken
+from app.resources.conversation import Conversation
 from flask_cors import CORS
 from app.util.util import ACCESS_EXPIRES
-import json
+from flask_socketio import SocketIO
 
 load_dotenv()  # Load environment variables from .env.
 
@@ -35,8 +36,11 @@ errors = {
         "status": 401,
     },
 }
+
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 api = Api(app, errors=errors)
 # Set the JWT secret key, loaded from the environment variable for security
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "default_secret_key")
@@ -112,12 +116,12 @@ api.add_resource(Profile, "/profile/<string:user_id>")
 api.add_resource(LogoutResource, "/logout")
 api.add_resource(RefreshResource, "/refresh_token")
 api.add_resource(TagResource, "/tags", "/tags/<string:user_id>")
-
+api.add_resource(Conversation, '/conversation/<string:user_id1>/<string:user_id2>')
 
 def create_app(mode="dev"):
     # with open(f"./config.json", "r") as f:
     #    config = json.load(f)
-    print(mode)
+    
     if mode == "dev":
         connect(
             host=os.getenv("MONGODB_CONNECTION_STRING")
