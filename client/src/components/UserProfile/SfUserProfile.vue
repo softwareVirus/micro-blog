@@ -8,7 +8,7 @@
                 <button :class="'follow-button' + (isFollowing ? ' unfollow' : '')" @click.prevent="followUser">
                     {{ isFollowing ? "Unfollow" : "Follow" }}
                 </button>
-                <router-link style="text-decoration: none;":to="`/chat/${user.id}/${userId}`" class="follow-button">
+                <router-link style="text-decoration: none;" :to="`/chat/${user.id}/${userId}`" class="follow-button">
                     Message
                 </router-link>
             </div>
