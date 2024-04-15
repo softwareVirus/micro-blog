@@ -10,9 +10,9 @@
         <div class="comment-container">
             <h1>
                 Authored By
-                <route-link :to="'/profile/' + post.author.id">
+                <router-link :to="'/profile/' + post.author.id">
                     {{ post.author.firstName + " " + post.author.lastName }}
-                </route-link>
+                </router-link>
             </h1>
             <div style="display: flex; width: 100%; justify-content: space-between; ">
                 <p class="post-card-author" style="margin: 0">

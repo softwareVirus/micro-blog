@@ -50,7 +50,7 @@ export default {
         SfCreateComment
     },
     data() {
-        console.log(this.comment)
+        
         return {
             isReplyComment: false
         }
@@ -83,7 +83,7 @@ export default {
         }
     },
     mounted() {
-        console.log(this.comment)
+        
     }
 }
 </script>

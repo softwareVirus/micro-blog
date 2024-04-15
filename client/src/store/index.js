@@ -93,7 +93,7 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
-    login: async function ({ commit, state }, user) {
+    login: async function ({ commit }, user) {
       try {
         
         const { email, password } = user;
@@ -106,7 +106,7 @@ export const store = new Vuex.Store({
         return error;
       }
     },
-    signup: async function ({ commit, state }, user) {
+    signup: async function ({ commit }, user) {
       try {
         
         const { firstName, lastName, email, password } = user;
@@ -139,15 +139,23 @@ export const store = new Vuex.Store({
         return error;
       }
     },
+    async fetchConversation({ state }, recipientId) {
+      try {
+        const response = await axios.get(`/conversation/${recipientId}/${state.user.id}`);
+        const conversation = response.data;
+        return conversation
+      } catch (error) {
+        console.error('Error fetching conversation:', error);
+        // Handle error
+      }
+    },  
     addTag: async function (_, post) {
       try {
-        const response = await axiosApiInstance.post("/tags", {
+        await axiosApiInstance.post("/tags", {
           tag: post
         });
-
-        
       } catch (error) {
-        
+        return ("Tags is not added!")  
       }
     },
     getTags: async function ({commit}, user_id) {
@@ -156,16 +164,14 @@ export const store = new Vuex.Store({
         commit('setTags', response.data)
         
       } catch (error) {
-        
+        return ("Tags can not get")
       }
     }, 
     createPost: async function (_, post) {
       try {
-        const response = await axiosApiInstance.post("/posts", post);
-
-        
+        await axiosApiInstance.post("/posts", post);
       } catch (error) {
-        
+        return (error)
       }
     },
     getPosts: async function ({ commit }, tags) {
@@ -191,7 +197,6 @@ export const store = new Vuex.Store({
         );
         return response.data;
       } catch (error) {
-        
         return [];
       }
     },
@@ -250,7 +255,7 @@ export const store = new Vuex.Store({
         return [];
       }
     },
-    getPost: async function ({ commit, state }, postId) {
+    getPost: async function ({ commit }, postId) {
       try {
         const response = await axiosApiInstance.get(`/post/${postId}`);
         const comments = await axiosApiInstance.get(
@@ -427,7 +432,7 @@ export const store = new Vuex.Store({
           state.posts.filter((post) => post.id !== postId)
         );
       } catch (error) {
-        
+        return (error)
       }
     },
   },
@@ -447,7 +452,7 @@ export default async function main(store) {
     }
     await store.dispatch("getTags")
   } catch (e) {
-    
+    return "User not found"
   }
   
   return store;

@@ -14,6 +14,9 @@
                     <router-link to="/signup">Sign Up</router-link>
                 </template>
                 <template v-else>
+                    <router-link to="/chat_history" style="background-color: white; border: 1px solid black;">
+                        <SfMessageIcon />
+                    </router-link>
                     <p>{{ user.firstName + " " + user.lastName }}</p>
                     <button class="logout-button" @click.prevent="logout">Logout</button>
                 </template>
@@ -24,8 +27,13 @@
 
 <script>
 import { mapActions } from 'vuex'
+import SfMessageIcon from './SfMessageIcon.vue'
+
 export default {
     name: "SfNavbar",
+    components: {
+        SfMessageIcon
+    },
     data() {
         return {
             isOpenProfileDialog: false,

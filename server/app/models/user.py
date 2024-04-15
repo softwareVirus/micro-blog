@@ -61,6 +61,7 @@ class User(Document):
     following = ListField(ReferenceField("User"))
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    conversations = ListField(ReferenceField("User"))
 
     def to_dict(self):
         """
@@ -79,6 +80,7 @@ class User(Document):
             "tags": [str(tag.id) for tag in self.tags],
             "followers": [str(follower.id) for follower in self.followers],
             "following": [str(following.id) for following in self.following],
+            "conversations": [str(conversations.id) for conversations in self.conversations],
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

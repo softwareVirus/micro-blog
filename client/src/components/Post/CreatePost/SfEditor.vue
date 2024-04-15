@@ -117,9 +117,6 @@ export default {
             return this.$refs.myTextEditor.quill
         },
     },
-    mounted() {
-        console.log('this is Quill instance:', this.editor)
-    },
     emits: ['update:title', 'update:content']
 }
 </script>
