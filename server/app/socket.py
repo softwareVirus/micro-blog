@@ -3,15 +3,13 @@ from datetime import datetime
 from flask import request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_jwt_extended import current_user, jwt_required
-from app import create_app
-from app.models.message import Message
-from app.models.user import User
+from server.app.models.message import Message
+from server.app.models.user import User
 from bson.objectid import ObjectId
 
-app = create_app("dev")
-socketio = SocketIO(app, cors_allowed_origins="*")
-
 active_users = {}
+
+socketio = SocketIO()
 
 
 # Event handler for new socket connections
@@ -22,7 +20,7 @@ def handle_connect():
     user_id = str(current_user.id)
     first_name = request.args.get("first_name")
     last_name = request.args.get("last_name")
-    
+
     # Add user to active users dictionary
     active_users[user_id] = {
         "user_socket_id": user_id,
@@ -91,9 +89,7 @@ def handle_user_status(data):
     sender_id = request.sid
     recipient_ids = data["recipient_ids"]
     users = {}
-    
     for recipient_id in recipient_ids:
-        
         if active_users.get(recipient_id) is not None:
             users[recipient_id] = {
                 "recipient_id": recipient_id,
