@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource
-from app.models.message import Message
-from app.models.user import User
+from server.app.models.message import Message
+from server.app.models.user import User
 
 
 class Conversation(Resource):

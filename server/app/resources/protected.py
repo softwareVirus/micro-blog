@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import jsonify
 from flask_jwt_extended import current_user, jwt_required
-from app.models.user import User
+from server.app.models.user import User
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 

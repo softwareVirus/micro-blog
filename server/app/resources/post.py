@@ -1,9 +1,9 @@
 from flask_restful import Resource, reqparse
-from app.models.post import Post
+from server.app.models.post import Post
 from mongoengine.errors import ValidationError, DoesNotExist
 from flask_jwt_extended import current_user, jwt_required
-from app.models.tag import Tag
-from app.models.user import User
+from server.app.models.tag import Tag
+from server.app.models.user import User
 import ast
 from flask import request
 from bson import ObjectId  # Import ObjectId from bson

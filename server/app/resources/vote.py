@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from app.models.post import Post
+from server.app.models.post import Post
 from flask_jwt_extended import current_user, jwt_required
 from flask import abort
 

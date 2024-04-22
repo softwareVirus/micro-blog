@@ -3,17 +3,17 @@ import jwt
 from datetime import timedelta, datetime
 from flask import Flask, jsonify
 from flask.testing import FlaskClient
-from app import create_app
-from app.models.user import User
-from app.models.post import Post
-from app.models.revoked_token import RevokedToken
+from server.main import app as main_app
+from server.app.models.user import User
+from server.app.models.post import Post
+from server.app.models.revoked_token import RevokedToken
 from mongomock import MongoClient
 import bcrypt
 from unittest.mock import patch
 from flask_jwt_extended import decode_token, current_user
 from flask_jwt_extended import create_access_token, create_refresh_token
 import os, json
-from app.tests.helpers import create_user
+from server.app.tests.helpers import create_user
 
 # Mock the request data
 signup_data = {
@@ -29,7 +29,7 @@ returnValue = None
 @pytest.fixture(scope="module")
 def app() -> Flask:
     """Create a Flask app instance for testing."""
-    app = create_app("test")
+    app = main_app
     yield app
 
 
@@ -43,7 +43,7 @@ def client(app: Flask) -> FlaskClient:
 def test_get_all_posts(client: FlaskClient):
     # Mock Post.objects() method to return a list of sample posts
     with client.application.app_context():
-        with patch("app.resources.post.Post.objects") as mock_objects:
+        with patch("server.app.resources.post.Post.objects") as mock_objects:
             user = create_user()
             token = create_access_token(identity=user, fresh=True)
             sample_posts = [
@@ -66,14 +66,14 @@ def test_get_all_posts(client: FlaskClient):
 def test_create_post(client: FlaskClient):
     # Mock the request parser to parse sample post data
     sample_post_data = {"title": "New Post", "content": "New Content"}
-    with patch("app.resources.post.parserPost.parse_args") as mock_parse_args:
+    with patch("server.app.resources.post.parserPost.parse_args") as mock_parse_args:
         mock_parse_args.return_value = sample_post_data
         # Mock the current_user attribute to represent an authenticated user
         User.objects().delete()
         user = create_user()
         token = create_access_token(identity=user, fresh=True)
         # Mock the Post.save() method to return a sample post
-        with patch("app.resources.post.Post.save") as mock_save:
+        with patch("server.app.resources.post.Post.save") as mock_save:
             mock_save.return_value = sample_post_data
             # Make a POST request to the /posts endpoint
             response = client.post(
