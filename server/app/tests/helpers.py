@@ -1,5 +1,5 @@
 import bcrypt
-from app.models.user import User
+from server.app.models.user import User
 import uuid
 
 signup_data = {

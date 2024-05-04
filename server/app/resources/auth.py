@@ -6,11 +6,11 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
 )
-from app.models.user import User
+from server.app.models.user import User
 import bcrypt
 from flask_jwt_extended import get_jwt
 from flask import jsonify
-from app.models.revoked_token import RevokedToken
+from server.app.models.revoked_token import RevokedToken
 
 parserSignup = reqparse.RequestParser()
 parserSignup.add_argument(

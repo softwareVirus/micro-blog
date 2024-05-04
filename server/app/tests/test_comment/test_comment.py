@@ -1,11 +1,11 @@
 import json
 import pytest
-from app.models.user import User
-from run import create_app
-from app.models.post import Post
-from app.models.comment import Comment
-from app.resources.comment import CommentResource
-from app.tests.helpers import create_user, create_mock_user
+from server.app.models.user import User
+from server.main import app as main_app
+from server.app.models.post import Post
+from server.app.models.comment import Comment
+from server.app.resources.comment import CommentResource
+from server.app.tests.helpers import create_user, create_mock_user
 from flask_jwt_extended import create_access_token
 from flask import Flask
 from flask.testing import FlaskClient
@@ -14,7 +14,7 @@ from flask.testing import FlaskClient
 @pytest.fixture(scope="module")
 def app() -> Flask:
     """Create a Flask app instance for testing."""
-    app = create_app("test")
+    app = main_app
     yield app
 
 
