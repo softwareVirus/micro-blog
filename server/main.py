@@ -5,9 +5,9 @@ from mongoengine import connect
 import mongomock
 import os
 from dotenv import load_dotenv
-from server.app.api.routes import routes_bp
-from server.util.jwt_conf import jwt, JWTConfig
-from server.app.socket import socketio
+from app.api.routes import routes_bp
+from util.jwt_conf import jwt, JWTConfig
+from app.socket import socketio
 load_dotenv()  # Load environment variables from .env.
 
 

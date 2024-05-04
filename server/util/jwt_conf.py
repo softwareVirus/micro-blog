@@ -1,5 +1,5 @@
-from server.app.models.revoked_token import RevokedToken
-from server.app.models.user import User
+from app.models.revoked_token import RevokedToken
+from app.models.user import User
 from datetime import timedelta
 from flask_jwt_extended import JWTManager
 import os

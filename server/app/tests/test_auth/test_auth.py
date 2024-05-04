@@ -1,11 +1,11 @@
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
-from server.main import app as main_app
+from main import app as main_app
 from unittest.mock import patch
 from flask_jwt_extended import decode_token
 from flask_jwt_extended import create_access_token, create_refresh_token
-from server.app.tests.helpers import create_user, create_mock_user
+from app.tests.helpers import create_user, create_mock_user
 
 # Mock the request data
 signup_data = {
@@ -38,7 +38,7 @@ def test_login(client: FlaskClient):
     """Test user login."""
     login_data = {"email": signup_data["email"], "password": "password123"}
     # Mock the expected user data
-    with patch("server.app.models.user.User.objects.get") as query:
+    with patch("app.models.user.User.objects.get") as query:
         user = create_mock_user()
         query.return_value = user
         response = client.post("/login", json=login_data)

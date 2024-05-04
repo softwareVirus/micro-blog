@@ -1,11 +1,11 @@
 import json
 import pytest
-from server.app.models.user import User
-from server.main import app as main_app
-from server.app.models.post import Post
-from server.app.models.comment import Comment
-from server.app.resources.comment import CommentResource
-from server.app.tests.helpers import create_user, create_mock_user
+from app.models.user import User
+from main import app as main_app
+from app.models.post import Post
+from app.models.comment import Comment
+from app.resources.comment import CommentResource
+from app.tests.helpers import create_user, create_mock_user
 from flask_jwt_extended import create_access_token
 from flask import Flask
 from flask.testing import FlaskClient

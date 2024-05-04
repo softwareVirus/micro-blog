@@ -2,12 +2,12 @@ import pytest
 import json
 from flask import Flask
 from flask.testing import FlaskClient
-from server.app.models.user import User
-from server.app.models.post import Post
-from server.main import app as main_app
-from server.app.resources.vote import VoteResource
+from app.models.user import User
+from app.models.post import Post
+from main import app as main_app
+from app.resources.vote import VoteResource
 from flask_jwt_extended import create_access_token
-from server.app.tests.helpers import create_user, create_mock_user
+from app.tests.helpers import create_user, create_mock_user
 
 
 @pytest.fixture(scope="module")

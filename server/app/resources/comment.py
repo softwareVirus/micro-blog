@@ -1,7 +1,7 @@
 from flask import request
 from flask_restful import Resource, reqparse
-from server.app.models.post import Post
-from server.app.models.comment import Comment
+from app.models.post import Post
+from app.models.comment import Comment
 from flask_jwt_extended import current_user, jwt_required
 
 parserComment = reqparse.RequestParser()
