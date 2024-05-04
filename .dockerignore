@@ -1,0 +1,10 @@
+# Ignore node_modules directory for Vue.js frontend
+**/node_modules
+
+# Ignore venv directory for Flask backend
+**/venv
+
+# Ignore any build artifacts
+**/dist
+**/__pycache__
+*.pyc

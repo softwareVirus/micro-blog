@@ -1,7 +1,9 @@
 from flask_restful import Resource
 from flask import jsonify
 from flask_jwt_extended import current_user, jwt_required
+from server.app.models.user import User
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+
 
 class Profile(Resource):
     """
@@ -32,8 +34,8 @@ class Profile(Resource):
         A JSON response containing the user's full name and email.
     """
 
-    @jwt_required()
-    def get(self):
+    @jwt_required(fresh=True)
+    def get(self, user_id):
         """
         Handles HTTP GET request for retrieving user profile information.
 
@@ -43,9 +45,8 @@ class Profile(Resource):
             A JSON response containing the user's full name and email.
         """
         try:
-            full_name = current_user.first_name + " " + current_user.last_name
-            email = current_user.email
-            return jsonify(full_name=full_name, email=email)
+            user = User.objects(id=user_id).get()
+            return user.to_dict()
 
         except ExpiredSignatureError:
             return {"error": "JWT token has expired"}, 401

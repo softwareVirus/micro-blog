@@ -1,0 +1,8 @@
+* {
+    box-sizing: border-box;
+    --primary-color: black;
+}
+
+body {
+    margin: 0;
+}
