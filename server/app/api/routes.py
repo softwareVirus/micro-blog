@@ -1,18 +1,19 @@
 from flask_restful import Api
-from server.app.resources.auth import (
+from app.resources.auth import (
     LoginResource,
     SignupResource,
     LogoutResource,
     RefreshResource,
 )
-from server.app.resources.tag import TagResource
-from server.app.resources.comment import CommentResource
-from server.app.resources.post import PostResource
-from server.app.resources.protected import Profile
-from server.app.resources.vote import VoteResource
-from server.app.resources.follow import FollowResource
-from server.app.models.revoked_token import RevokedToken
-from server.app.resources.conversation import Conversation
+from app.resources.tag import TagResource
+from app.resources.comment import CommentResource
+from app.resources.post import PostResource
+from app.resources.protected import Profile
+from app.resources.vote import VoteResource
+from app.resources.follow import FollowResource
+from app.models.revoked_token import RevokedToken
+from app.resources.conversation import Conversation
+from app.resources.notification import NotificationResource
 from flask import Blueprint
 
 routes_bp = Blueprint("routes", __name__)
@@ -49,3 +50,4 @@ api.add_resource(LogoutResource, "/logout")
 api.add_resource(RefreshResource, "/refresh_token")
 api.add_resource(TagResource, "/tags", "/tags/<string:user_id>")
 api.add_resource(Conversation, "/conversation/<string:user_id1>/<string:user_id2>")
+api.add_resource(NotificationResource, "/notification")
