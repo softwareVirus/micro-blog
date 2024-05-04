@@ -3,9 +3,11 @@ from datetime import datetime
 from flask import request
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from flask_jwt_extended import current_user, jwt_required
-from server.app.models.message import Message
-from server.app.models.user import User
+from app.models.message import Message
+from app.models.user import User
 from bson.objectid import ObjectId
+from app.models.notification import Notification
+from .util.util import send_notification
 
 active_users = {}
 
@@ -47,6 +49,13 @@ def handle_join_private_chat(data):
     join_room(current_user_id)
 
 
+@socketio.on("join_notification")
+@jwt_required()
+def handle_join_notification(data):
+    current_user_id = str(current_user.id)
+    join_room("notification-to-" + current_user_id)
+
+
 # Event handler for leaving private chat room
 @socketio.on("leave_private_chat")
 @jwt_required()
@@ -79,7 +88,14 @@ def handle_private_message(data):
     recipient_user.save()
     message.save()
 
+    new_notification = Notification.add_notification(
+        sender=current_user,
+        recepient=recipient_user,
+        type="message",
+        message=f"You have received a new message from {current_user.first_name}.",
+    )
     emit("private_message", message.to_dict(), room=recipient_id)
+    send_notification(recipient_id, new_notification.to_dict())
 
 
 # Function to emit user status update to all clients
@@ -89,7 +105,9 @@ def handle_user_status(data):
     sender_id = request.sid
     recipient_ids = data["recipient_ids"]
     users = {}
+
     for recipient_id in recipient_ids:
+
         if active_users.get(recipient_id) is not None:
             users[recipient_id] = {
                 "recipient_id": recipient_id,
