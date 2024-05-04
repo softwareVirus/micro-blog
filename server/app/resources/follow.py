@@ -1,7 +1,8 @@
 from flask_restful import Resource
-from server.app.models.user import User
+from app.models.user import User
 from flask_jwt_extended import current_user, jwt_required
 from flask import abort
+from app.models.notification import Notification
 
 
 class FollowResource(Resource):
@@ -52,6 +53,13 @@ class FollowResource(Resource):
             # Add the target user to the current user's following list
             current_user.update(add_to_set__following=user)
             user.update(add_to_set__followers=current_user)
+            Notification.add_notification(
+                sender=current_user,
+                recepient=user,
+                type="follow",
+                message=f"You have a new follower: {current_user.first_name}",
+            )
+            # send_notification(user_id, new_notification.to_dict())
             return {"message": "User followed successfully"}, 201
 
         except User.DoesNotExist:
@@ -89,6 +97,14 @@ class FollowResource(Resource):
             # Remove the target user from the current user's following list
             current_user.update(pull__following=user)
             user.update(pull__followers=current_user)
+
+            Notification.add_notification(
+                current_user,
+                user,
+                "unfollow",
+                f"{current_user.first_name} unfollowed you.",
+            )
+            # send_notification(user_id, new_notification.to_dict())
             return {"message": "User unfollowed successfully"}, 204
 
         except User.DoesNotExist:
