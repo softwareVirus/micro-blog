@@ -51,7 +51,7 @@ class Post(Document):
     """
 
     title = StringField(max_length=200, required=True)
-    content = StringField(max_length=2000, required=True)
+    content = StringField(max_length=18000, required=True)
     author = ReferenceField("User", reverse_delete_rule=CASCADE)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
