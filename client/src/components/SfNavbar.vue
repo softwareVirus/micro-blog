@@ -14,10 +14,11 @@
                     <router-link to="/signup">Sign Up</router-link>
                 </template>
                 <template v-else>
+                    <SfNotificationBox />
                     <router-link to="/chat_history" style="background-color: white; border: 1px solid black;">
                         <SfMessageIcon />
                     </router-link>
-                    <p>{{ user.firstName + " " + user.lastName }}</p>
+                    <router-link :to="'/profile/' + user.id">{{ user.firstName + " " + user.lastName }}</router-link>
                     <button class="logout-button" @click.prevent="logout">Logout</button>
                 </template>
             </div>
@@ -28,11 +29,12 @@
 <script>
 import { mapActions } from 'vuex'
 import SfMessageIcon from './SfMessageIcon.vue'
-
+import SfNotificationBox from './Notification/SfNotificationBox.vue'
 export default {
     name: "SfNavbar",
     components: {
-        SfMessageIcon
+        SfMessageIcon,
+        SfNotificationBox
     },
     data() {
         return {
