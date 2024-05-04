@@ -1,5 +1,5 @@
 <template>
-    <div class="display-post-container">
+    <div class="display-post-container" v-if="title !== null || post !== undefined">
         <div class="display-post-box">
             <h1 class="display-post-title">
                 {{ post.title }}
@@ -24,10 +24,19 @@
                     {{ post.votes.length }}
                 </div>
             </div>
-            <div class="tag-container">
+            <div class="tag-container" v-if="title !== null">
                 <h4>Tags</h4>
                 <div class="tag-link-group" v-if="tags && tags.length > 0">
                     <route-link v-for="tag in tags" class="tag-link" :key="tag.tag">
+                        {{ tag.tag }}
+                    </route-link>
+                </div>
+                <h4 v-else style="margin: 0; margin-left: 0.5rem;">No Tags</h4>
+            </div>
+            <div class="tag-container" v-else>
+                <h4>Tags</h4>
+                <div class="tag-link-group" v-if="post.tags && post.tags.length > 0">
+                    <route-link v-for="tag in post.tags" class="tag-link" :key="tag.tag">
                         {{ tag.tag }}
                     </route-link>
                 </div>
@@ -93,8 +102,8 @@ export default {
             return this.$store.state.currentPost
         }
     },
-    mounted() {
-        this.getPost(this.$route.params.id)
+    async mounted() {
+        await this.getPost(this.$route.params.id)
     },
     beforeDestroy() {
         this.removeCurrentPost()
